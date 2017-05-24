@@ -17,10 +17,10 @@ void setDirection(motorDirection direction)
     switch(direction)
     {
         case FRONT:
-            digitalWrite(AHEAD_RIGHT_RELAY, HIGH);
-            digitalWrite(AHEAD_LEFT_RELAY, HIGH);
             digitalWrite(BEHIND_RIGHT_RELAY, LOW);
             digitalWrite(BEHIND_LEFT_RELAY, LOW);
+            digitalWrite(AHEAD_RIGHT_RELAY, HIGH);
+            digitalWrite(AHEAD_LEFT_RELAY, HIGH);
             break;
         case BACK:
             digitalWrite(AHEAD_RIGHT_RELAY, LOW);
@@ -30,14 +30,14 @@ void setDirection(motorDirection direction)
             break;
         case RIGHT:
             digitalWrite(AHEAD_RIGHT_RELAY, LOW);
+            digitalWrite(BEHIND_LEFT_RELAY, LOW);
             digitalWrite(AHEAD_LEFT_RELAY, HIGH);
             digitalWrite(BEHIND_RIGHT_RELAY, HIGH);
-            digitalWrite(BEHIND_LEFT_RELAY, LOW);
             break;
         case LEFT:
-            digitalWrite(AHEAD_RIGHT_RELAY, HIGH);
             digitalWrite(AHEAD_LEFT_RELAY, LOW);
             digitalWrite(BEHIND_RIGHT_RELAY, LOW);
+            digitalWrite(AHEAD_RIGHT_RELAY, HIGH);
             digitalWrite(BEHIND_LEFT_RELAY, HIGH);
             break;
         case NONE:
