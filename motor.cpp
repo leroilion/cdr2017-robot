@@ -48,3 +48,9 @@ void setDirection(motorDirection direction)
             break;
     }
 }
+
+void motorSetSpeed(unsigned int right, unsigned int left)
+{
+    analogWrite(RIGHT_MOTOR_PWM, right);
+    analogWrite(LEFT_MOTOR_PWM, left);
+}
