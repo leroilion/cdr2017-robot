@@ -5,6 +5,9 @@
 void jumperInit()
 {
     pinMode(JUMPER, INPUT);
+
+    // Activate pull-up
+    digitalWrite(JUMPER, HIGH);
 }
 
 boolean jumperIsPresent()
