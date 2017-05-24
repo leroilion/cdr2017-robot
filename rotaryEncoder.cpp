@@ -2,11 +2,14 @@
 #include "pinout.hpp"
 #include "rotaryEncoder.hpp"
 
-static unsigned long rightTick = 0;
-static unsigned long leftTick = 0;
+static unsigned long rotaryEncoderTick[ROTARY_ENCODER_MAX];
 
 void rotaryEncoderInit()
 {
+    for( int i = 0; i < ROTARY_ENCODER_MAX; i++)
+    {
+        rotaryEncoderTick[i] = 0;
+    }
     pinMode(RIGHT_ROTARY_ENCODER, OUTPUT);
     pinMode(LEFT_ROTARY_ENCODER, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(RIGHT_ROTARY_ENCODER), rotaryEncoderRightIncrement, CHANGE);
@@ -15,20 +18,20 @@ void rotaryEncoderInit()
 
 void rotaryEncoderRightIncrement()
 {
-    rightTick++;
+    rotaryEncoderTick[ROTARY_ENCODER_RIGHT] += 1;
 }
 
 void rotaryEncoderLeftIncrement()
 {
-    leftTick++;
+    rotaryEncoderTick[ROTARY_ENCODER_LEFT] += 1;
 }
 
 unsigned long rotaryEncoderGetRight()
 {
-    return rightTick;
+    return rotaryEncoderTick[ROTARY_ENCODER_RIGHT];
 }
 
 unsigned long rotaryEncoderGetLeft()
 {
-    return leftTick;
+    return rotaryEncoderTick[ROTARY_ENCODER_LEFT];
 }
