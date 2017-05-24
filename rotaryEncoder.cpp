@@ -3,6 +3,7 @@
 #include "rotaryEncoder.hpp"
 
 static unsigned long rotaryEncoderTick[ROTARY_ENCODER_MAX];
+static unsigned long rotaryEncoderPartial[ROTARY_ENCODER_MAX];
 
 void rotaryEncoderInit()
 {
@@ -34,4 +35,20 @@ unsigned long rotaryEncoderGetRight()
 unsigned long rotaryEncoderGetLeft()
 {
     return rotaryEncoderTick[ROTARY_ENCODER_LEFT];
+}
+
+void rotaryEncoderResetPartial(unsigned short encoder)
+{
+    if( encoder < ROTARY_ENCODER_MAX)
+    {
+        rotaryEncoderPartial[encoder] = rotaryEncoderTick[encoder];
+    }
+}
+
+unsigned long rotaryEncoderGetPartial(unsigned short encoder)
+{
+    if( encoder < ROTARY_ENCODER_MAX)
+    {
+        return rotaryEncoderTick[encoder] - rotaryEncoderPartial[encoder];
+    }
 }

@@ -10,5 +10,7 @@ void rotaryEncoderRightIncrement();
 void rotaryEncoderLeftIncrement();
 unsigned long rotaryEncoderGetRight();
 unsigned long rotaryEncoderGetLeft();
+void rotaryEncoderResetPartial(unsigned short encoder);
+unsigned long rotaryEncoderGetPartial(unsigned short encoder);
 
 #endif
