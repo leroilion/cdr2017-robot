@@ -6,3 +6,8 @@ void jumperInit()
 {
     pinMode(JUMPER, INPUT);
 }
+
+boolean jumperIsPresent()
+{
+    return digitalRead(JUMPER);
+}

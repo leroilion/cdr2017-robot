@@ -2,5 +2,6 @@
 #define __JUMPER_HPP__
 
 void jumperInit();
+boolean jumperIsPresent();
 
 #endif
