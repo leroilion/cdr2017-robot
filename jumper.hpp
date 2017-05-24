@@ -3,5 +3,7 @@
 
 void jumperInit();
 boolean jumperIsPresent();
+void jumperWaitPresent();
+void jumperWaitUnpresent();
 
 #endif

@@ -11,3 +11,13 @@ boolean jumperIsPresent()
 {
     return digitalRead(JUMPER);
 }
+
+void jumperWaitPresent()
+{
+    while( digitalRead(JUMPER) ) {};
+}
+
+void jumperWaitUnpresent()
+{
+    while( ! digitalRead(JUMPER) ) {};
+}
