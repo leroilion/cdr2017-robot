@@ -14,4 +14,6 @@
 #define BEHIND_RIGHT_RELAY 8
 #define BEHIND_LEFT_RELAY 6
 
+#define JUMPER 4
+
 #endif
