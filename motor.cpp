@@ -12,7 +12,7 @@ void motorInit()
     pinMode(BEHIND_LEFT_RELAY, OUTPUT);
 }
 
-void setDirection(motorDirection direction)
+void motorSetDirection(motorDirection direction)
 {
     switch(direction)
     {
