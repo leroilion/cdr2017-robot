@@ -2,6 +2,7 @@
 #include "pinout.hpp"
 #include "jumper.hpp"
 #include "TimerOne.h"
+#include "funnyAction.hpp"
 
 static boolean startTimer = false;
 static unsigned long timer = 0;
@@ -51,5 +52,14 @@ void jumperTimerHandler()
 
     // If delay is finish
     if( timer >= JUMPER_WAIT_TICK)
+    {
+        // Wait 500ms to me sure
+        delay(500);
+
+        // Start funny action
+        funnyActionStart();
+
+        // infinity loop
         while( true ) {};
+    }
 }
