@@ -12,7 +12,7 @@ GIT_VERSION       = $(shell git describe --abbrev=7 --dirty --always --tags)
 
 ### ARDMK_DIR
 ### Path to the Arduino-Makefile directory.
-ARDMK_DIR         = /usr/share/arduino
+ARDMK_DIR         = arduino-mk
 
 ### ARDUINO_DIR
 ### Path to the Arduino application and resources directory.
