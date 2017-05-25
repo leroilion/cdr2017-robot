@@ -1,0 +1,543 @@
+ //asservissement
+// 2 capteurs de roues  : droite et gauche
+//on compte le nombre de trous sur chaque capteur, on compare puis on freine 1 des moteurs pour aller en ligne doite
+// Alimenter 9V arduino et 5 v les moteurs
+// DONNEEs : pour 250 trous-espaces distance = 150 cm, soit 0.6cm par espace-trou
+//DONNES : 72 trous-espaces pour 90°
+  //pin 26 :servo de retour de cylindres
+  boolean g=0; // etat actuel du capteur gauche
+  boolean d=0; //etat actuel du capteur droit
+
+  boolean capD=A1;//capteur de roue droite pin Q2 ou 4
+  int NbreD=0;//nombre total de trous passes depuis le debut,avec zero au depart
+
+  boolean capG=A0;//capteur de roue gauche pin D4 ou6
+  int NbreG=0;//nombre total de trous passes depuis le debut,avec zero au depart
+
+
+  int Max=250;//nombre de trous-espaces preprogrammes des le debut
+
+  int motD=10;//moteur droit pin 11 ou D5 ,actionne par le PWM droit
+  int motG=9;//moteur gauche pin 15 ou D9, actionne par le PWM gauche
+
+  boolean avantD=7;//sens de rotation
+  boolean arriereD= 8;//sens de rotation
+  boolean avantG=5;//sens de rotation
+  boolean arriereG=6;//sens de rotation
+
+  boolean etatCapD=false;//mesure de  l'etat du capteur
+  boolean etatCapG=false;
+  int bordAvant = A5;
+  int bordArriere=A4;
+
+
+void setup()
+{
+  pinMode (bordAvant,INPUT);//capteurs de bordure droite
+  pinMode (bordArriere,INPUT);
+
+  pinMode (capD, INPUT);//le capteur droit est en entree
+  pinMode (capG,INPUT);//capteur gauche en entree
+
+  pinMode (motD,OUTPUT);//alimentation en PWM du moteur droit en sortie
+  pinMode (motG,OUTPUT);//alimentation en PWM du moteur gauche en sortie
+
+  pinMode (avantG,OUTPUT);//sens de rotation des moteurs
+  pinMode (avantD,OUTPUT);
+  pinMode (arriereD,OUTPUT);
+  pinMode (arriereG,OUTPUT);
+
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++
+void avantToutes (int n)//entrée de la variable locale   n
+{
+      //Mise en route des 2 moteurs
+          analogWrite ( motD,180);//vitesse 100
+          analogWrite (motG,180); // vitesse 100
+
+          digitalWrite (avantD,true);//sens
+          digitalWrite (avantG,true);
+
+          digitalWrite (arriereD,false);//securité
+          digitalWrite (arriereG,false);
+         // delay (50);
+       NbreD=0;//initialisation des compteurs D et G
+       NbreG=0;
+       d=0;
+       g=0;
+
+  while (NbreD<n)
+{
+  //Lecture du capteur de roue droite
+       etatCapD=digitalRead(capD);//lecture capteur droit et memorisation dans : etatCapD
+     if (etatCapD==!d )//comparaison de la lecture du capteur droit avec l'etat precedant d, ici different
+         { d=!d;//changement de l'etat actuel de d
+          NbreD=NbreD+1; //incrementer le nombre de trous total
+         } // fin de if
+
+
+   // Lecture du capteur de roue gauche
+         etatCapG=digitalRead(capG);//lecture du capteur gaucher et memorisatio dans : etatCapG
+      if ( etatCapG==!g) //comparaison dela lecture du capteur gauche avec l'etat precedant g, ici different
+         { g=!g; //changement de l'etat acteul du capteur roue gauche
+          NbreG=NbreG+1;//incrementation du nombre total de trous roue gauche
+         }//fin de if
+
+   //asservissement ligne droite
+
+      //chercher si les 2 roues ont tourné du meme nombre de trous et agir en conseqnence en freinant un des moteurs
+      if (NbreD>NbreG) //  SI la  roue doite a plus tourne que la roue gauche
+         { analogWrite (motD,90); //vitesse 80 pour le moteur droit, 20 en mpoins que le moteur gauche
+           analogWrite (motG,180); //moteur gauche vitesse 100, vitesse normale
+
+           digitalWrite (avantD,true);// sens des 2 moteurs
+           digitalWrite (avantG,true);
+
+           //les moteurs sont en route
+           delay (20); // rester ainsi 10 millisecondes pour rattrapper la ligne droite
+
+
+         }
+
+      if (NbreD<NbreG)// SI la roue gauche a plus tourne que la  roue droite
+         { analogWrite (motD,100);//vitesse
+           analogWrite (motG,80); // moteur gauche ralenti
+
+           digitalWrite (avantD,true);//remise à rezo des sens moteur,securité
+           digitalWrite (avantG,true);
+
+           digitalWrite( arriereD,false);//securité
+           digitalWrite( arriereG,false);
+              delay ( 20); // rester ainsi 10 milli secondes pour nrattarapper la ligne droite
+         }
+
+}//fin de while car on a atteint le nombre de trous Max
+ // On arrete les 2 moteurs
+          analogWrite ( motD,0);//arret du moteur droit
+          analogWrite (motG,0); //arret du moteur gauche
+
+          digitalWrite (avantD,false);//remise à rezo des sens moteur
+          digitalWrite (avantG,false);
+
+          digitalWrite (arriereD,false);//securité
+          digitalWrite (arriereG,false);
+        //  delay (3000);
+
+} //reprise de la boucle principale
+//+++++++++++++++++++++++++++++++++++++++++
+void arriereToutes (int arr)//variable locale arr
+{
+      //Mise en route des 2 moteurs
+          analogWrite ( motD,180);//vitesse 100
+          analogWrite (motG,180); // vitesse 100
+
+          digitalWrite (arriereD,true);//sens
+          digitalWrite (arriereG,true);
+
+          digitalWrite (avantD,false);
+          digitalWrite (avantG,false);
+         // delay (50);
+       NbreD=0;//initialisation des compteurs D et G
+       NbreG=0;
+
+  while (NbreD<arr)
+{
+  //Lecture du capteur de roue droite
+       etatCapD=digitalRead(capD);//lecture capteur droit et memorisation dans : etatCapD
+     if (etatCapD==!d )//comparaison de la lecture du capteur droit avec l'etat precedant d, ici different
+         { d=!d;//changement de l'etat actuel de d
+          NbreD=NbreD+1; //incrementer le nombre de trous total
+         } // fin de if
+
+
+   // Lecture du capteur de roue gauche
+         etatCapG=digitalRead(capG);//lecture du capteur gaucher et memorisatio dans : etatCapG
+      if ( etatCapG==!g) //comparaison dela lecture du capteur gauche avec l'etat precedant g, ici different
+         { g=!g; //changement de l'etat acteul du capteur roue gauche
+          NbreG=NbreG+1;//incrementation du nombre total de trous roue gauche
+         }//fin de if
+
+   //asservissement ligne arriere gauche
+
+      //chercher si les 2 roues ont tourné du meme nombre de trous et agir en conseqnence en freinant un des moteurs
+      if (NbreD>NbreG) //  SI la  roue doite a plus tourne que la roue gauche
+         { analogWrite (motD,80); //vitesse 80 pour le moteur droit, 20 en mpoins que le moteur gauche
+           analogWrite (motG,180); //moteur gauche vitesse 100, vitesse normale
+
+
+
+           //les moteurs sont en route
+           delay (20); // rester ainsi 10 millisecondes pour rattrapper la ligne droite
+
+
+         }
+
+      if (NbreD<NbreG)// SI la roue gauche a plus tourne que la  roue droite
+         { analogWrite (motD,180);//vitesse
+           analogWrite (motG,80); // moteur gauche ralenti
+
+
+              delay ( 20); // rester ainsi 10 milli secondes pour nrattarapper la ligne droite
+         }
+
+}//fin de while car on a atteint le nombre de trous Max
+ // On arrerte les 2 moteurs
+          analogWrite ( motD,0);//arret du moteur droit
+          analogWrite (motG,0); //arret du moteur gauche
+
+          digitalWrite (arriereD,false);//remise à rezo des sens moteur
+          digitalWrite (arriereG,false);
+          digitalWrite (avantG,false);
+          digitalWrite (avantD,false);
+       //   delay (3000);
+
+} //reprise de la boucle principale
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void droitesurPlace (int ga)//variable locale ga
+{
+
+   analogWrite (motG,180); // moteur gauche
+   analogWrite (motD,180); // moteur gauche
+
+           digitalWrite (arriereD,true);//remise à rezo des sens moteur
+           digitalWrite (avantG,true);
+
+           digitalWrite (avantD,false);
+           digitalWrite (arriereG,false);
+
+ //asservissement rotation 90° droite
+// 2 capteurs de roues  : droite et gauche
+// DONNEEs : pour 250 trous-espaces distance = 150 cm, soit 0.6cm par espace-trou
+//DONNES : 72 trous-espaces pour 90°
+
+      //initialisation des compteurs D et G
+       NbreG=0;
+        g=0;
+
+        //Mise en route des 2 moteurs
+          analogWrite ( motD,180);//vitesse 100
+          analogWrite (motG,180); // vitesse 100
+
+          digitalWrite (arriereD,true);//sens
+          digitalWrite (avantG,true);
+         // delay (50);
+       NbreD=0;//initialisation des compteurs D et G
+       NbreG=0;
+
+  while (NbreD<ga)
+{
+  //Lecture du capteur de roue droite
+       etatCapD=digitalRead(capD);//lecture capteur droit et memorisation dans : etatCapD
+     if (etatCapD==!d )//comparaison de la lecture du capteur droit avec l'etat precedant d, ici different
+         { d=!d;//changement de l'etat actuel de d
+          NbreD=NbreD+1; //incrementer le nombre de trous total
+
+         } // fin de if
+
+
+   // Lecture du capteur de roue gauche
+         etatCapG=digitalRead(capG);//lecture du capteur gaucher et memorisatio dans : etatCapG
+      if ( etatCapG==!g) //comparaison dela lecture du capteur gauche avec l'etat precedant g, ici different
+         { g=!g; //changement de l'etat acteul du capteur roue gauche
+          NbreG=NbreG+1;//incrementation du nombre total de trous roue gauche
+          delay (10);
+         }//fin de if
+
+   //asservissement rotation droite
+
+      //chercher si les 2 roues ont tourné du meme nombre de trous et agir en conseqnence en freinant un des moteurs
+      if (NbreD>NbreG) //  SI la  roue doite a plus tourne que la roue gauche
+         { analogWrite (motD,80); //vitesse 80 pour le moteur droit, 20 en mpoins que le moteur gauche
+           analogWrite (motG,180); //moteur gauche vitesse 100, vitesse normale
+
+           //les moteurs sont en route
+           delay (20); // rester ainsi 10 millisecondes pour rattrapper la ligne droite
+
+
+         }
+
+      if (NbreD<NbreG)// SI la roue gauche a plus tourne que la  roue droite
+         { analogWrite (motD,180);//vitesse
+           analogWrite (motG,50); // moteur gauche ralenti
+
+           delay ( 20); // rester ainsi 10 milli secondes pour nrattarapper la ligne droite
+         }
+
+}//fin de while car on a atteint le nombre de trous Max
+ // On arrete les 2 moteurs
+          analogWrite (motD,0);//arret du moteur droit
+          analogWrite (motG,0); //arret du moteur gauche
+
+          digitalWrite (arriereD,false);//remise à rezo des sens moteur et frein
+          digitalWrite (avantG,false);
+
+          digitalWrite (avantD,false); //securité
+          digitalWrite (arriereG,false);
+         // delay (3000);
+
+} //reprise de la boucle principale
+//+++++++++++++++++++++++++++++++++++++++++++++++++
+void droiteToutes (int ga)//variable locale d
+{
+           analogWrite (motG,180);//vitesse du moteur droit
+           analogWrite (motD,0);
+
+           digitalWrite (avantG,true);//remise à zero des sens moteur
+           digitalWrite (avantD,false);
+
+           digitalWrite (arriereD,false);
+           digitalWrite (arriereG,false);
+
+ //asservissement rotation 90° droite
+// 2 capteurs de roues  : droite et gauche
+// DONNEEs : pour 250 trous-espaces distance = 150 cm, soit 0.6cm par espace-trou
+//DONNES : 72 trous-espaces pour 90°
+
+      //initialisation du compteur D
+       NbreG=0;
+       g=0;//variable de l'angle de rotation en trous !
+
+          analogWrite (motG,180);//vitesse du moteur droit
+           analogWrite (motD,0);
+
+  while (NbreG<ga)
+{
+
+   // Lecture du capteur de roue gauche
+         etatCapG=digitalRead(capG);//lecture du capteur gauche et memorisation dans : etatCapG
+      if ( etatCapG==!g) //comparaison dela lecture du capteur gauche avec l'etat precedant g, ici different
+         { g=!g; //changement de l'etat acteul du capteur roue gauche
+          NbreG=NbreG+1;//incrementation du nombre total de trous roue gauche
+         }//fin de if
+ }//fin de while
+
+  // Arrete les 2 moteurs comme prevu avec MAX
+          analogWrite ( motD,0);//arret du moteur droit
+          analogWrite (motG,0); //arret du moteur gauche
+
+          digitalWrite (avantD,false);//remise à rezo des sens moteur et frein
+          digitalWrite (avantG,false);
+          digitalWrite (arriereG,false);
+          digitalWrite (arriereG,false);
+    //      delay (3000);//attente
+
+} //reprise de la boucle
+
+//==========================================
+//===========================================
+
+void gaucheToutes (int ga)//variable locale ga
+{
+
+   analogWrite (motG,0); // moteur gauche
+   analogWrite (motD,180); // moteur gauche
+
+           digitalWrite (arriereD,false);//remise à rezo des sens moteur
+           digitalWrite (avantG,false);
+
+           digitalWrite (avantD,true);
+           digitalWrite (arriereG,false);
+
+ //asservissement rotation 90° droite
+// 2 capteurs de roues  : droite et gauche
+// DONNEEs : pour 250 trous-espaces distance = 150 cm, soit 0.6cm par espace-trou
+//DONNES : 72 trous-espaces pour 90°
+
+      //initialisation des compteurs D et G
+       NbreG=0;
+        g=0;
+
+        //Mise en route des 2 moteurs
+          analogWrite ( motD,180);//vitesse 100
+          analogWrite (motG,0); // vitesse 100
+
+          digitalWrite (arriereD,false);//sens
+          digitalWrite (avantD,true);
+          digitalWrite (arriereG ,false);
+          digitalWrite (avantG,false);
+          //delay (20);
+       NbreD=0;//initialisation des compteurs D et G
+       NbreG=0;
+
+  while (NbreD<ga)
+{
+  //Lecture du capteur de roue droite
+       etatCapD=digitalRead(capD);//lecture capteur droit et memorisation dans : etatCapD
+     if (etatCapD==!d )//comparaison de la lecture du capteur droit avec l'etat precedant d, ici different
+         { d=!d;//changement de l'etat actuel de d
+          NbreD=NbreD+1; //incrementer le nombre de trous total
+
+         } // fin de if
+
+
+   // Lecture du capteur de roue gauche
+         etatCapG=digitalRead(capG);//lecture du capteur gaucher et memorisatio dans : etatCapG
+      if ( etatCapG==!g) //comparaison dela lecture du capteur gauche avec l'etat precedant g, ici different
+         { g=!g; //changement de l'etat acteul du capteur roue gauche
+          NbreG=NbreG+1;//incrementation du nombre total de trous roue gauche
+          delay (20);
+         }//fin de if
+
+   //asservissement rotation droite
+
+      //chercher si les 2 roues ont tourné du meme nombre de trous et agir en conseqnence en freinant un des moteurs
+      if (NbreD>NbreG) //  SI la  roue doite a plus tourne que la roue gauche
+         { analogWrite (motD,180); //vitesse 80 pour le moteur droit, 20 en mpoins que le moteur gauche
+           analogWrite (motG,0); //moteur gauche vitesse 100, vitesse normale
+
+           //les moteurs sont en route
+           delay (20); // rester ainsi 10 millisecondes pour rattrapper la ligne droite
+
+
+         }
+
+      if (NbreD<NbreG)// SI la roue gauche a plus tourne que la  roue droite
+         { analogWrite (motD,180);//vitesse
+           analogWrite (motG,0); // moteur gauche ralenti
+
+           delay ( 20); // rester ainsi 10 milli secondes pour nrattarapper la ligne droite
+         }
+
+}//fin de while car on a atteint le nombre de trous Max
+ // On arrete les 2 moteurs
+          analogWrite (motD,0);//arret du moteur droit
+          analogWrite (motG,0); //arret du moteur gauche
+
+          digitalWrite (arriereD,false);//remise à rezo des sens moteur et frein
+          digitalWrite (avantD,false);
+
+          digitalWrite (avantG,false); //securité
+          digitalWrite (arriereG,false);
+         // delay (3000);
+
+} //reprise de la boucle principale
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++
+void gauchesurPlace (int a)//variable locale a
+{
+   //Mise en route des 2 moteurs
+          analogWrite ( motD,0);//vitesse 100
+          analogWrite (motG,180); // vitesse 100
+
+          digitalWrite (avantD,true);//sens
+          digitalWrite (avantG,true);
+
+          digitalWrite (arriereD,false);//securité
+          digitalWrite (arriereG,false);
+         // delay (50);
+       NbreD=0;//initialisation des compteurs D et G
+       NbreG=0;
+
+  while (NbreD<a)
+{
+  //Lecture du capteur de roue droite
+       etatCapD=digitalRead(capD);//lecture capteur droit et memorisation dans : etatCapD
+     if (etatCapD==!d )//comparaison de la lecture du capteur droit avec l'etat precedant d, ici different
+         { d=!d;//changement de l'etat actuel de d
+          NbreD=NbreD+1; //incrementer le nombre de trous total
+         } // fin de if
+
+
+   // Lecture du capteur de roue gauche
+         etatCapG=digitalRead(capG);//lecture du capteur gaucher et memorisatio dans : etatCapG
+      if ( etatCapG==!g) //comparaison dela lecture du capteur gauche avec l'etat precedant g, ici different
+         { g=!g; //changement de l'etat acteul du capteur roue gauche
+          NbreG=NbreG+1;//incrementation du nombre total de trous roue gauche
+         }//fin de if
+
+   //asservissement ligne droite
+
+      //chercher si les 2 roues ont tourné du meme nombre de trous et agir en conseqnence en freinant un des moteurs
+      if (NbreD>NbreG) //  SI la  roue doite a plus tourne que la roue gauche
+         { analogWrite (motD,0); //vitesse 80 pour le moteur droit, 20 en mpoins que le moteur gauche
+           analogWrite (motG,180); //moteur gauche vitesse 100, vitesse normale
+
+           digitalWrite (avantD,true);// sens des 2 moteurs
+           digitalWrite (avantG,true);
+
+           //les moteurs sont en route
+           delay (20); // rester ainsi 10 millisecondes pour rattrapper la ligne droite
+
+
+         }
+
+      if (NbreD<NbreG)// SI la roue gauche a plus tourne que la  roue droite
+         { analogWrite (motD,0);//vitesse
+           analogWrite (motG,180); // moteur gauche ralenti
+
+           digitalWrite (avantD,true);//remise à rezo des sens moteur,securité
+           digitalWrite (avantG,true);
+
+           digitalWrite( arriereD,false);//securité
+           digitalWrite( arriereG,false);
+              delay ( 20); // rester ainsi 10 milli secondes pour nrattarapper la ligne droite
+         }
+
+}//fin de while car on a atteint le nombre de trous Max
+ // On arrete les 2 moteurs
+          analogWrite ( motD,0);//arret du moteur droit
+          analogWrite (motG,0); //arret du moteur gauche
+
+          digitalWrite (avantD,false);//remise à rezo des sens moteur
+          digitalWrite (avantG,false);
+
+          digitalWrite (arriereD,false);//securité
+          digitalWrite (arriereG,false);
+        //  delay (3000);
+
+} //reprise de la boucle
+//++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//++++++++++++++++++++++++++++++++++++++++++++++++
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+/*void loop()//essai de toutes les fonctions
+{
+  //1
+  avantToutes(100);
+
+  delay (2000);
+  //2
+  droitesurPlace(100);
+  delay (2000);
+  //3 en panne
+  gaucheToutes(100);;//à la place de gaucheToutes
+  delay (2000);
+
+  //4
+  arriereToutes(100);
+  delay (2000);
+  //5
+   gauchesurPlace(100);
+  delay (2000);
+  //6 en panne
+  droiteToutes(100);
+  delay (5000)
+}
+*/
+//====================================================
+  void loop ()
+{
+  // 1 avance de 40 cm ou  66 trous vers le cylindre
+delay (5000);
+  gaucheToutes (15);
+  delay (5000);
+  //3 avance de 60 trous
+  avantToutes (60);
+  //  attente 3 s
+  delay (5000);
+  // 5 rotation 45° droite, se retourne vers le garage
+  droiteToutes (130);
+  delay (5000);
+  // 7 avance 40cm ou  trous, se retrouve dans le garage
+  avantToutes (40);
+  delay (5000);
+  //9 tourne vers garage
+  droiteToutes (15);
+  delay (3000);
+  // 11 recule pour se degager de 60 cm ou 60 trous
+  arriereToutes (60);
+
+  }
