@@ -10,6 +10,8 @@ void motorInit()
     pinMode(AHEAD_LEFT_RELAY, OUTPUT);
     pinMode(BEHIND_RIGHT_RELAY, OUTPUT);
     pinMode(BEHIND_LEFT_RELAY, OUTPUT);
+    motorSetSpeed(0, 0);
+    motorSetDirection(NONE);
 }
 
 void motorSetDirection(motorDirection direction)
